@@ -27,6 +27,10 @@
   margin: 10px;
 }
 
+#cat-generator {
+  margin: 10px;
+}
+
 .flex-box-rps img:hover {
   box-shadow: 0px 10px 50px rgba(37, 50, 233, 1);
 }
