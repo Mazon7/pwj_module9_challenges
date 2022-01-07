@@ -208,8 +208,10 @@ function countScore(activePlayer) {
   let score = 0;
 
   for (card of cards) {
-    if (card.rank === "Ace") {
+    if (card.rank === "Ace" && score + 11 > 21) {
       score += rank[card.rank][0];
+    } else if (card.rank === "Ace" && score + 11 <= 21) {
+      score += rank[card.rank][1];
     } else {
       score += rank[card.rank];
     }
@@ -222,6 +224,17 @@ function showCard(activePlayer) {
   let card = document.createElement("card-t");
   card.rank = randomCard()[0];
   card.suit = randomCard()[1];
+
+  // Remove allready shown card from the deck (do not show card that already on the table)
+  let allCards = document.querySelectorAll("card-t");
+  for (i of allCards) {
+    console.log(i.rank);
+    // while (i.rank === card.rank && i.suit === card.suit) {
+    //   // card.rank = randomCard()[0];
+    //   // card.suit = randomCard()[1];
+    // }
+  }
+
   document.querySelector(activePlayer["div"]).appendChild(card);
   hitSound.play();
 }
@@ -244,7 +257,6 @@ function blackjackHit() {
   showCard(USER);
   USER.score = countScore(USER["div"]);
   document.querySelector(USER.scoreSpan).innerHTML = USER.score;
-  console.log(USER.score);
 }
 
 function blackjackStand() {
@@ -258,7 +270,6 @@ function blackjackStand() {
       //  if the score < 17, call the loop function
       blackjackStand();
     } //  ..  setTimeout()
-    console.log(DEALER.score);
     document.querySelector(DEALER.scoreSpan).innerHTML = DEALER.score;
   }, 1000);
 }
