@@ -173,7 +173,7 @@ const rank = {
   Jack: 10,
   Queen: 10,
   King: 10,
-  Ace: { 0: 1, 1: 11 },
+  Ace: [1, 11],
 };
 
 // Declare user and dealer objects
