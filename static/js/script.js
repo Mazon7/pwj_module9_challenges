@@ -220,7 +220,7 @@ function countScore(activePlayer) {
 }
 
 // Show card
-let currentCards = [];
+let currentCards = []; // current cards array
 function showCard(activePlayer) {
   if (USER.score <= 21) {
     let card = document.createElement("card-t");
@@ -249,71 +249,22 @@ function showCard(activePlayer) {
   }
 }
 
-// Event listeners for buttons
-document
-  .querySelector("#blackjack-hit-button")
-  .addEventListener("click", blackjackHit);
+// Click counter and disable Stand button
+var clicks = 0;
+document.querySelector("#blackjack-stand-button").disabled = true;
+document.querySelector("#blackjack-deal-button").disabled = true;
 
-document
-  .querySelector("#blackjack-stand-button")
-  .addEventListener("click", blackjackStand);
-
-document
-  .querySelector("#blackjack-deal-button")
-  .addEventListener("click", blackjackDeal);
-
-// Button actions
-function blackjackHit() {
-  // Show cards and update score
-  showCard(USER);
-  USER.score = countScore(USER["div"]);
-  // Write score or BUST logic
-  if (USER.score <= 21) {
-    document.querySelector(USER.scoreSpan).textContent = USER.score;
-  } else {
-    document.querySelector(USER.scoreSpan).textContent = "BUST!";
-    document.querySelector(USER.scoreSpan).style.color = "red";
-    // Disable buttons
-    document.querySelector("#blackjack-hit-button").disabled = true;
-    document.querySelector("#blackjack-stand-button").disabled = true;
-    // Count history
-    gameHistory();
+// Unisable Stand button when user clicks Hit 2 times
+function undisableStand() {
+  clicks += 1;
+  document.querySelector("#blackjack-deal-button").disabled = false;
+  if (clicks >= 2) {
+    document.querySelector("#blackjack-stand-button").disabled = false;
   }
 }
 
-function blackjackStand() {
-  // Logic that allows to stop and continue getting cards for dealer
-  // If dealer count < 17 continue getting cards
-  setTimeout(function () {
-    //  call a 1s setTimeout when the loop is called
-    showCard(DEALER);
-    DEALER.score = countScore(DEALER["div"]);
-    if (DEALER.score < 17) {
-      //  if the score < 17, call the loop function
-      blackjackStand();
-    } //  ..  setTimeout()
-    document.querySelector(DEALER.scoreSpan).innerHTML = DEALER.score;
-  }, 1000);
-}
-
-function blackjackDeal() {
-  // Remove all cards from user and dealer boxex
-  let userCards = document
-    .querySelector(USER["div"])
-    .querySelectorAll("card-t");
-
-  let dealerCards = document
-    .querySelector(DEALER["div"])
-    .querySelectorAll("card-t");
-
-  for (card of userCards) {
-    card.remove();
-  }
-
-  for (card of dealerCards) {
-    card.remove();
-  }
-  // gameHistory();
+// Refresh user and dealer score
+function refreshScore() {
   document.querySelector(USER.scoreSpan).style.color = "white";
   document.querySelector(USER.scoreSpan).innerHTML = 0;
   document.querySelector(DEALER.scoreSpan).innerHTML = 0;
@@ -336,6 +287,7 @@ function gameHistory() {
   ) {
     wins += 1;
     document.querySelector("#wins").innerHTML = wins;
+    winSound.play();
   } else if (
     dealerScore === userScore &&
     dealerScore <= 21 &&
@@ -343,13 +295,97 @@ function gameHistory() {
   ) {
     draws += 1;
     document.querySelector("#draws").innerHTML = draws;
+    winSound.play();
   } else {
     losses += 1;
     document.querySelector("#losses").innerHTML = losses;
+    looseSound.play();
+  }
+}
+
+// Event listeners for buttons
+document
+  .querySelector("#blackjack-hit-button")
+  .addEventListener("click", blackjackHit);
+
+document
+  .querySelector("#blackjack-stand-button")
+  .addEventListener("click", blackjackStand);
+
+document
+  .querySelector("#blackjack-deal-button")
+  .addEventListener("click", blackjackDeal);
+
+// Button actions
+function blackjackHit() {
+  // Check disabled btn
+  undisableStand();
+  // Show cards and update score
+  showCard(USER);
+  USER.score = countScore(USER["div"]);
+  // Write score or BUST logic
+  if (USER.score <= 21) {
+    document.querySelector(USER.scoreSpan).textContent = USER.score;
+  } else {
+    document.querySelector(USER.scoreSpan).textContent = "BUST!";
+    document.querySelector(USER.scoreSpan).style.color = "red";
+    // Disable buttons
+    document.querySelector("#blackjack-hit-button").disabled = true;
+    document.querySelector("#blackjack-stand-button").disabled = true;
+    // Update game history
+    gameHistory();
+  }
+}
+
+function blackjackStand() {
+  // Btn management
+  document.querySelector("#blackjack-hit-button").disabled = true;
+  document.querySelector("#blackjack-stand-button").disabled = true;
+  // Logic that allows to stop and continue getting cards for dealer
+  // If dealer count < 17 continue getting cards
+  setTimeout(function () {
+    //  call a 1s setTimeout when the loop is called
+    showCard(DEALER);
+    DEALER.score = countScore(DEALER["div"]);
+    if (DEALER.score < 17) {
+      //  if the score < 17, call the loop function
+      blackjackStand();
+    } else {
+      // Disable buttons
+      document.querySelector("#blackjack-hit-button").disabled = true;
+      document.querySelector("#blackjack-stand-button").disabled = true;
+      // Update game history
+      gameHistory();
+    } //  ..  setTimeout()
+    document.querySelector(DEALER.scoreSpan).innerHTML = DEALER.score;
+  }, 1000);
+}
+
+function blackjackDeal() {
+  // Remove all cards from user and dealer boxex
+  let userCards = document
+    .querySelector(USER["div"])
+    .querySelectorAll("card-t");
+
+  let dealerCards = document
+    .querySelector(DEALER["div"])
+    .querySelectorAll("card-t");
+
+  for (card of userCards) {
+    card.remove();
   }
 
-  //   document.querySelector(USER.scoreSpan).innerHTML = 0;
-  //   document.querySelector(DEALER.scoreSpan).innerHTML = 0;
-  //   USER.score = 0;
-  //   DEALER.score = 0;
+  for (card of dealerCards) {
+    card.remove();
+  }
+
+  // Refresh scores
+  refreshScore();
+  // Clean the current cards array (Use new deck for the game)
+  currentCards = [];
+  // Clean clicks
+  clicks = 0;
+  // Undisable buttons
+  document.querySelector("#blackjack-hit-button").disabled = false;
+  document.querySelector("#blackjack-stand-button").disabled = true;
 }
