@@ -220,23 +220,33 @@ function countScore(activePlayer) {
 }
 
 // Show card
+let currentCards = [];
 function showCard(activePlayer) {
-  let card = document.createElement("card-t");
-  card.rank = randomCard()[0];
-  card.suit = randomCard()[1];
+  if (USER.score <= 21) {
+    let card = document.createElement("card-t");
+    let cardValue = randomCard();
+    card.rank = cardValue[0];
+    card.suit = cardValue[1];
 
-  // Remove allready shown card from the deck (do not show card that already on the table)
-  let allCards = document.querySelectorAll("card-t");
-  for (i of allCards) {
-    console.log(i.rank);
-    // while (i.rank === card.rank && i.suit === card.suit) {
-    //   // card.rank = randomCard()[0];
-    //   // card.suit = randomCard()[1];
-    // }
+    // Logic for showing only new card from the deck
+    if (document.querySelectorAll("card-t").length === 0) {
+      currentCards.push(card.rank + " of " + card.suit);
+    } else {
+      while (currentCards.includes(card.rank + " of " + card.suit)) {
+        console.log("Existed card: " + card.rank + " of " + card.suit);
+        var newCard = randomCard();
+        card.rank = newCard[0];
+        card.suit = newCard[1];
+        console.log("New card: " + card.rank + " of " + card.suit);
+        console.log("---------------");
+      }
+      currentCards.push(card.rank + " of " + card.suit);
+    }
+
+    // Add card to div with the sound
+    document.querySelector(activePlayer["div"]).appendChild(card);
+    hitSound.play();
   }
-
-  document.querySelector(activePlayer["div"]).appendChild(card);
-  hitSound.play();
 }
 
 // Event listeners for buttons
@@ -254,9 +264,21 @@ document
 
 // Button actions
 function blackjackHit() {
+  // Show cards and update score
   showCard(USER);
   USER.score = countScore(USER["div"]);
-  document.querySelector(USER.scoreSpan).innerHTML = USER.score;
+  // Write score or BUST logic
+  if (USER.score <= 21) {
+    document.querySelector(USER.scoreSpan).textContent = USER.score;
+  } else {
+    document.querySelector(USER.scoreSpan).textContent = "BUST!";
+    document.querySelector(USER.scoreSpan).style.color = "red";
+    // Disable buttons
+    document.querySelector("#blackjack-hit-button").disabled = true;
+    document.querySelector("#blackjack-stand-button").disabled = true;
+    // Count history
+    gameHistory();
+  }
 }
 
 function blackjackStand() {
@@ -291,7 +313,12 @@ function blackjackDeal() {
   for (card of dealerCards) {
     card.remove();
   }
-  gameHistory();
+  // gameHistory();
+  document.querySelector(USER.scoreSpan).style.color = "white";
+  document.querySelector(USER.scoreSpan).innerHTML = 0;
+  document.querySelector(DEALER.scoreSpan).innerHTML = 0;
+  USER.score = 0;
+  DEALER.score = 0;
 }
 
 // Losses, wins, draws counter
@@ -321,8 +348,8 @@ function gameHistory() {
     document.querySelector("#losses").innerHTML = losses;
   }
 
-  document.querySelector(USER.scoreSpan).innerHTML = 0;
-  document.querySelector(DEALER.scoreSpan).innerHTML = 0;
-  USER.score = 0;
-  DEALER.score = 0;
+  //   document.querySelector(USER.scoreSpan).innerHTML = 0;
+  //   document.querySelector(DEALER.scoreSpan).innerHTML = 0;
+  //   USER.score = 0;
+  //   DEALER.score = 0;
 }
