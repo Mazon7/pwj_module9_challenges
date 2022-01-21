@@ -267,9 +267,16 @@ function undisableStand() {
 function refreshScore() {
   document.querySelector(USER.scoreSpan).style.color = "white";
   document.querySelector(USER.scoreSpan).innerHTML = 0;
+  document.querySelector(DEALER.scoreSpan).style.color = "white";
   document.querySelector(DEALER.scoreSpan).innerHTML = 0;
   USER.score = 0;
   DEALER.score = 0;
+}
+
+// Bust message
+function bust(user) {
+  document.querySelector(user.scoreSpan).textContent = "BUST!";
+  document.querySelector(user.scoreSpan).style.color = "red";
 }
 
 // Losses, wins, draws counter
@@ -327,8 +334,8 @@ function blackjackHit() {
   if (USER.score <= 21) {
     document.querySelector(USER.scoreSpan).textContent = USER.score;
   } else {
-    document.querySelector(USER.scoreSpan).textContent = "BUST!";
-    document.querySelector(USER.scoreSpan).style.color = "red";
+    // User Busts
+    bust(USER);
     // Disable buttons
     document.querySelector("#blackjack-hit-button").disabled = true;
     document.querySelector("#blackjack-stand-button").disabled = true;
@@ -341,24 +348,33 @@ function blackjackStand() {
   // Btn management
   document.querySelector("#blackjack-hit-button").disabled = true;
   document.querySelector("#blackjack-stand-button").disabled = true;
+  document.querySelector("#blackjack-deal-button").disabled = true;
   // Logic that allows to stop and continue getting cards for dealer
   // If dealer count < 17 continue getting cards
   setTimeout(function () {
     //  call a 1s setTimeout when the loop is called
     showCard(DEALER);
     DEALER.score = countScore(DEALER["div"]);
-    if (DEALER.score < 17) {
-      //  if the score < 17, call the loop function
+    // Count the current dealer's score
+    document.querySelector(DEALER.scoreSpan).innerHTML = DEALER.score;
+    if (DEALER.score < 18) {
+      //  if the score < 18, call the loop function
       blackjackStand();
-    } else {
-      // Disable buttons
-      document.querySelector("#blackjack-hit-button").disabled = true;
-      document.querySelector("#blackjack-stand-button").disabled = true;
+    } else if (18 <= DEALER.score && DEALER.score <= 21) {
+      // Undisable Deal btn
+      document.querySelector("#blackjack-deal-button").disabled = false;
       // Update game history
       gameHistory();
-    } //  ..  setTimeout()
-    document.querySelector(DEALER.scoreSpan).innerHTML = DEALER.score;
-  }, 1000);
+    }
+    //Dealer Busts
+    else {
+      bust(DEALER);
+      // Undisable Deal btn
+      document.querySelector("#blackjack-deal-button").disabled = false;
+      // Update game history
+      gameHistory();
+    }
+  }, 1000); //  ..  setTimeout()
 }
 
 function blackjackDeal() {
