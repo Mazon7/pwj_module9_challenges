@@ -279,6 +279,24 @@ function bust(user) {
   document.querySelector(user.scoreSpan).style.color = "red";
 }
 
+function showResult(winner) {
+  let message, messageColor;
+  if (winner === USER) {
+    message = "You won!";
+    messageColor = "green";
+    winSound.play();
+  } else if (winner === DEALER) {
+    message = "You lost!";
+    messageColor = "red";
+    looseSound.play();
+  } else {
+    message = "You drew!";
+    messageColor = "black";
+  }
+  document.querySelector("#blackjack-result").textContent = message;
+  document.querySelector("#blackjack-result").style.color = messageColor;
+}
+
 // Losses, wins, draws counter
 let losses = 0;
 let wins = 0;
@@ -294,7 +312,7 @@ function gameHistory() {
   ) {
     wins += 1;
     document.querySelector("#wins").innerHTML = wins;
-    winSound.play();
+    showResult(USER);
   } else if (
     dealerScore === userScore &&
     dealerScore <= 21 &&
@@ -302,11 +320,12 @@ function gameHistory() {
   ) {
     draws += 1;
     document.querySelector("#draws").innerHTML = draws;
-    winSound.play();
+    showResult();
   } else {
     losses += 1;
     document.querySelector("#losses").innerHTML = losses;
-    looseSound.play();
+    showResult(DEALER);
+    // looseSound.play();
   }
 }
 
@@ -354,8 +373,9 @@ function blackjackStand() {
   setTimeout(function () {
     //  call a 1s setTimeout when the loop is called
     showCard(DEALER);
-    DEALER.score = countScore(DEALER["div"]);
     // Count the current dealer's score
+    DEALER.score = countScore(DEALER["div"]);
+    // Show score on the screen
     document.querySelector(DEALER.scoreSpan).innerHTML = DEALER.score;
     if (DEALER.score < 18) {
       //  if the score < 18, call the loop function
@@ -397,10 +417,17 @@ function blackjackDeal() {
 
   // Refresh scores
   refreshScore();
+
   // Clean the current cards array (Use new deck for the game)
   currentCards = [];
+
   // Clean clicks
   clicks = 0;
+
+  // Set game result to default
+  document.querySelector("#blackjack-result").textContent = "Let's play";
+  document.querySelector("#blackjack-result").style.color = "black";
+
   // Undisable buttons
   document.querySelector("#blackjack-hit-button").disabled = false;
   document.querySelector("#blackjack-stand-button").disabled = true;
