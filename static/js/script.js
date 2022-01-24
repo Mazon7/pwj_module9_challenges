@@ -184,6 +184,9 @@ let blackjackGame = {
     div: "#dealer-box",
     score: 0,
   },
+  losses: 0,
+  wins: 0,
+  draws: 0,
 };
 
 // Reference to user and dealer objects
@@ -279,6 +282,7 @@ function bust(user) {
   document.querySelector(user.scoreSpan).style.color = "red";
 }
 
+// Write game result message on the top
 function showResult(winner) {
   let message, messageColor;
   if (winner === USER) {
@@ -297,11 +301,6 @@ function showResult(winner) {
   document.querySelector("#blackjack-result").style.color = messageColor;
 }
 
-// Losses, wins, draws counter
-let losses = 0;
-let wins = 0;
-let draws = 0;
-
 // Count Game History
 function gameHistory() {
   let userScore = USER.score;
@@ -310,22 +309,21 @@ function gameHistory() {
     (dealerScore < userScore && userScore <= 21) ||
     (dealerScore > 21 && userScore <= 21)
   ) {
-    wins += 1;
-    document.querySelector("#wins").innerHTML = wins;
+    blackjackGame.wins++;
+    document.querySelector("#wins").innerHTML = blackjackGame.wins;
     showResult(USER);
   } else if (
     dealerScore === userScore &&
     dealerScore <= 21 &&
     userScore <= 21
   ) {
-    draws += 1;
-    document.querySelector("#draws").innerHTML = draws;
+    blackjackGame.draws++;
+    document.querySelector("#draws").innerHTML = blackjackGame.draws;
     showResult();
   } else {
-    losses += 1;
-    document.querySelector("#losses").innerHTML = losses;
+    blackjackGame.losses++;
+    document.querySelector("#losses").innerHTML = blackjackGame.losses;
     showResult(DEALER);
-    // looseSound.play();
   }
 }
 
