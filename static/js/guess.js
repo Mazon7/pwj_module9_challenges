@@ -63,7 +63,8 @@ function displayResult(numberGuess) {
 function initGame() {
   // Reset the guess history display
   correctNumber = getRandomNumber();
-  document.getElementById("result").innerHTML = "";
+  resetResultContent();
+  document.getElementById("number-guess").value = "";
   guesses = [];
   displayHistory();
 }
